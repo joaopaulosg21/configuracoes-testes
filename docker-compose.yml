@@ -1,7 +1,29 @@
 services:
+  # Serviço da Aplicação (config-teste)
+  config-teste:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: config-teste-app
+    restart: on-failure
+    depends_on:
+      - postgres
+      - valkey
+    ports:
+      - "8080:8080"
+    environment:
+      # Exemplo de variáveis de ambiente para a aplicação Spring Boot
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/exemplo_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_REDIS_HOST=valkey
+      - SPRING_REDIS_PORT=6379
+    networks:
+      - app-network
+
   # Serviço do Banco de Dados (PostgreSQL)
   postgres:
-    image: postgres:16-alpine # Versão leve baseada em Alpine Linux
+    image: postgres:16-alpine
     container_name: config-test-postgres
     restart: always
     environment:
@@ -16,25 +38,17 @@ services:
       - app-network
 
   valkey:
-    image: valkey/valkey:8 # Imagem oficial do Valkey
-    container_name: config-test-postgres-valkey
+    image: valkey/valkey:8
+    container_name: config-test-valkey
     restart: always
     ports:
       - "6379:6379"
-    # O comando abaixo é opcional, mas útil para persistência básica (RDB)
-    # Se quiser apenas cache em memória (volátil), remova a linha 'command' e 'volumes'
-    #command: valkey-server --save 60 1 --loglevel warning
-    #volumes:
-    #  - valkey_data:/data
     networks:
       - app-network
 
-# Definição dos Volumes para persistência
 volumes:
   postgres_data:
-  valkey_data:
 
-# Rede para comunicação entre os containers
 networks:
   app-network:
     driver: bridge
