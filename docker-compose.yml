@@ -1,0 +1,40 @@
+services:
+  # Serviço do Banco de Dados (PostgreSQL)
+  postgres:
+    image: postgres:16-alpine # Versão leve baseada em Alpine Linux
+    container_name: config-test-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: exemplo_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  valkey:
+    image: valkey/valkey:8 # Imagem oficial do Valkey
+    container_name: config-test-postgres-valkey
+    restart: always
+    ports:
+      - "6379:6379"
+    # O comando abaixo é opcional, mas útil para persistência básica (RDB)
+    # Se quiser apenas cache em memória (volátil), remova a linha 'command' e 'volumes'
+    #command: valkey-server --save 60 1 --loglevel warning
+    #volumes:
+    #  - valkey_data:/data
+    networks:
+      - app-network
+
+# Definição dos Volumes para persistência
+volumes:
+  postgres_data:
+  valkey_data:
+
+# Rede para comunicação entre os containers
+networks:
+  app-network:
+    driver: bridge
