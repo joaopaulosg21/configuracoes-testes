@@ -39,4 +39,9 @@ public class BookController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/helloworld")
+    public ResponseEntity<String> hello() {
+        return ResponseEntity.ok("Hello World");
+    }
 }
